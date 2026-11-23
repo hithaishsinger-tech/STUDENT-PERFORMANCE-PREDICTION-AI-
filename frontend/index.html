@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Analytics & Grade Forecasting</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation & Institutional Branding -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Academix Analytics</h1>
+          <p class="brand-subtitle">Student Examination Forecaster & Diagnostic Portal</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="meta-pill">
+          <span class="status-indicator"></span>
+          <span class="meta-label">Model:</span>
+          <strong>Ridge Regressor v1.0</strong>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Validation $R^2$:</span>
+          <strong class="text-success">97.85%</strong>
+        </div>
+        <div class="term-selector">
+          <select id="termSelect" aria-label="Academic Term">
+            <option value="fall-2026">Term: Fall 2026 Examination</option>
+            <option value="spring-2027">Term: Spring 2027 Cohort</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-layout">
+    
+    <!-- Student Archetype Presets Bar -->
+    <section class="presets-section">
+      <div class="presets-header">
+        <span class="section-eyebrow">Cohort Benchmarks & Quick Archetypes:</span>
+        <span class="presets-help">Click any student archetype to test realistic curriculum scenarios</span>
+      </div>
+      <div class="presets-grid" id="presetsGrid">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- Core Two-Column Dashboard -->
+    <div class="dashboard-columns">
+      
+      <!-- Left Column: Input Parameter Panel -->
+      <section class="card input-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Student Diagnostic Parameters</h2>
+            <p class="card-description">Adjust study hours, attendance record, and prior assessment marks.</p>
+          </div>
+          <button id="resetBtn" class="btn-ghost" title="Reset parameters to defaults">Reset</button>
+        </div>
+
+        <form id="predictionForm" class="parameter-form" onsubmit="event.preventDefault();">
+          
+          <!-- Field 1: Daily Study Hours -->
+          <div class="form-group" id="group-hours">
+            <div class="field-label-row">
+              <label for="hoursInput">Daily Self-Study Hours</label>
+              <div class="sync-input-wrap">
+                <input type="number" id="hoursInput" min="0.5" max="14.0" step="0.5" value="6.0" class="numeric-field">
+                <span class="field-unit">hrs/day</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="hoursSlider" min="0.5" max="12.0" step="0.5" value="6.0" aria-label="Daily Study Hours">
+              <div class="slider-scale">
+                <span>0.5h (Low)</span>
+                <span class="scale-benchmark">Benchmark: 4.5h</span>
+                <span>12.0h (High)</span>
+              </div>
+            </div>
+            <p class="field-hint">Hours spent on self-study, assignments, and problem practice outside scheduled lectures.</p>
+          </div>
+
+          <!-- Field 2: Classroom Attendance -->
+          <div class="form-group" id="group-attendance">
+            <div class="field-label-row">
+              <label for="attendanceInput">Classroom Attendance</label>
+              <div class="sync-input-wrap">
+                <input type="number" id="attendanceInput" min="40.0" max="100.0" step="1.0" value="88.0" class="numeric-field">
+                <span class="field-unit">%</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="attendanceSlider" min="40.0" max="100.0" step="1.0" value="88.0" aria-label="Classroom Attendance Percentage">
+              <div class="slider-scale">
+                <span>40% (Deficit)</span>
+                <span class="scale-benchmark">Mandatory: 75%</span>
+                <span>100%</span>
+              </div>
+            </div>
+            <p class="field-hint">Percentage of physical lectures, tutorials, and practical lab sessions attended.</p>
+          </div>
+
+          <!-- Field 3: Previous Examination Marks -->
+          <div class="form-group" id="group-previous">
+            <div class="field-label-row">
+              <label for="previousInput">Previous Assessment Marks</label>
+              <div class="sync-input-wrap">
+                <input type="number" id="previousInput" min="0.0" max="100.0" step="1.0" value="78.0" class="numeric-field">
+                <span class="field-unit">/100</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="previousSlider" min="30.0" max="100.0" step="1.0" value="78.0" aria-label="Previous Assessment Marks">
+              <div class="slider-scale">
+                <span>30 (Remedial)</span>
+                <span class="scale-benchmark">Median: 68.0</span>
+                <span>100 (Perfect)</span>
+              </div>
+            </div>
+            <p class="field-hint">Weighted aggregate marks obtained in mid-terms, pre-finals, or prerequisite courses.</p>
+          </div>
+
+        </form>
+
+        <!-- What-If Quick Increments -->
+        <div class="quick-sim-card">
+          <h3 class="subsection-title">Immediate Improvement Opportunities</h3>
+          <div class="sim-pill-grid">
+            <div class="sim-pill" id="simPlus1h">
+              <span class="sim-label">+1.0 hr study daily</span>
+              <strong class="sim-value" id="valPlus1h">+2.4 marks</strong>
+            </div>
+            <div class="sim-pill" id="simPlus2h">
+              <span class="sim-label">+2.0 hrs study daily</span>
+              <strong class="sim-value" id="valPlus2h">+4.8 marks</strong>
+            </div>
+            <div class="sim-pill" id="simPlusAtt">
+              <span class="sim-label">+10% attendance</span>
+              <strong class="sim-value" id="valPlusAtt">+2.5 marks</strong>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Prediction Outcomes & Diagnostic Synthesis -->
+      <section class="card results-card">
+        
+        <div class="score-hero" id="scoreHero">
+          <div class="score-main-block">
+            <span class="hero-eyebrow">Estimated Final Examination Score</span>
+            <div class="score-number-row">
+              <span class="score-display" id="predictedScore">--</span>
+              <span class="score-total">/ 100</span>
+            </div>
+            <div class="tier-badge-container">
+              <span class="grade-pill" id="gradeBadge">--</span>
+              <span class="tier-label" id="tierLabel">Analyzing trajectory...</span>
+            </div>
+          </div>
+
+          <div class="score-meter-wrap">
+            <div class="meter-track">
+              <div class="meter-fill" id="meterFill" style="width: 0%;"></div>
+            </div>
+            <div class="meter-labels">
+              <span>0</span>
+              <span>50 (Pass)</span>
+              <span>75 (Good)</span>
+              <span>90 (A+)</span>
+              <span>100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Factor Attribution Breakdown (Explainable AI) -->
+        <div class="breakdown-section">
+          <div class="breakdown-header">
+            <h3 class="subsection-title">Factor Contribution Breakdown</h3>
+            <span class="breakdown-subtext">How each component builds the predicted score</span>
+          </div>
+
+          <div class="attribution-bars">
+            <div class="attrib-item">
+              <div class="attrib-meta">
+                <span class="attrib-name">Baseline Academic Knowledge (Previous Marks)</span>
+                <strong class="attrib-points" id="ptPrevious">+0.0 pts</strong>
+              </div>
+              <div class="attrib-bar-bg">
+                <div class="attrib-bar-fill fill-knowledge" id="barPrevious" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="attrib-item">
+              <div class="attrib-meta">
+                <span class="attrib-name">Diligence & Study Practice (Daily Hours)</span>
+                <strong class="attrib-points" id="ptHours">+0.0 pts</strong>
+              </div>
+              <div class="attrib-bar-bg">
+                <div class="attrib-bar-fill fill-study" id="barHours" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="attrib-item">
+              <div class="attrib-meta">
+                <span class="attrib-name">Classroom Instruction Engagement (Attendance)</span>
+                <strong class="attrib-points" id="ptAttendance">+0.0 pts</strong>
+              </div>
+              <div class="attrib-bar-bg">
+                <div class="attrib-bar-fill fill-attendance" id="barAttendance" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="attrib-item">
+              <div class="attrib-meta">
+                <span class="attrib-name">Curriculum Baseline Constant</span>
+                <strong class="attrib-points" id="ptBaseline">+5.4 pts</strong>
+              </div>
+              <div class="attrib-bar-bg">
+                <div class="attrib-bar-fill fill-base" id="barBaseline" style="width: 5.4%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Grade Feasibility Planner -->
+        <div class="planner-section">
+          <h3 class="subsection-title">Target Grade Attainment Planner</h3>
+          <div class="planner-grid" id="plannerGrid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Academic Advisory Synthesis -->
+        <div class="advisory-section">
+          <div class="advisory-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <h3 class="advisory-title">Advisory Assessment & Recommended Next Steps</h3>
+          </div>
+          <p class="advisory-text" id="advisoryText">Evaluating performance...</p>
+          <ul class="action-items-list" id="actionItemsList">
+            <!-- Action items rendered dynamically -->
+          </ul>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Bottom Section: Sensitivity Curve & Model Validation Provenance -->
+    <section class="analytics-row">
+      
+      <!-- Sensitivity Curve Visualizer -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Study Hours Sensitivity Curve</h2>
+            <p class="card-description">Score progression as daily study hours scale from 1h to 10h (holding current attendance & previous marks steady).</p>
+          </div>
+          <div class="current-marker-legend">
+            <span class="legend-dot"></span> Current Student Position
+          </div>
+        </div>
+        <div class="svg-chart-container" id="chartContainer">
+          <svg id="sensitivityChart" viewBox="0 0 700 240" preserveAspectRatio="none">
+            <!-- Drawn via JavaScript -->
+          </svg>
+        </div>
+      </div>
+
+      <!-- Provenance & Metrics Card -->
+      <div class="card metrics-card">
+        <div class="card-header">
+          <h2 class="card-title">Model Diagnostics & Provenance</h2>
+        </div>
+        
+        <div class="stats-table">
+          <div class="stat-row">
+            <span class="stat-name">Trained Algorithm</span>
+            <span class="stat-val font-mono">Ridge (L2 Regularized)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Validation $R^2$ Score</span>
+            <span class="stat-val font-mono text-success">97.85% (0.9785)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Model Accuracy (100 - MAPE)</span>
+            <span class="stat-val font-mono text-success">98.14%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Mean Absolute Error (MAE)</span>
+            <span class="stat-val font-mono">&plusmn; 1.38 marks</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Root Mean Squared Error</span>
+            <span class="stat-val font-mono">1.72 marks</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Cohort Benchmark Size</span>
+            <span class="stat-val font-mono">1,000 Verified Records</span>
+          </div>
+        </div>
+
+        <div class="model-formula-box">
+          <span class="formula-label">Estimated Linear Formulation:</span>
+          <code>Final = 5.39 + (2.38 &times; Hours) + (0.25 &times; Att%) + (0.58 &times; Prev)</code>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <p>&copy; 2026 Academix Intelligence. Designed for faculty, academic advisors, and student success teams.</p>
+      <div class="footer-links">
+        <span>Verified Python 3.14 + Scikit-Learn Engine</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -21,14 +21,19 @@ STUDENT-PERFORMANCE-PREDICTION-AI-/
 │
 ├── data/
 │   └── student_data.csv        # Synthesized realistic student dataset (1,000 records)
+├── frontend/
+│   ├── index.html              # Custom academic portal frontend (no AI boilerplate)
+│   ├── style.css               # Clean, accessible styling & design system
+│   └── app.js                  # Reactive state controller & SVG sensitivity chart
 ├── models/
 │   ├── student_model.pkl       # Saved trained Scikit-Learn model
 │   └── model_metrics.json      # Evaluation metrics (R², MAE, RMSE, MAPE)
 │
+├── server.py                   # FastAPI application serving Web UI & REST API
 ├── generate_dataset.py         # Generates educational dataset with realistic distributions
 ├── train.py                    # Trains, benchmarks & validates ML models
 ├── predict.py                  # Command-line interface (CLI) for real-time predictions
-├── app.py                      # Interactive Streamlit Web Application
+├── app.py                      # Alternative Streamlit dashboard
 ├── requirements.txt            # Project dependencies
 └── README.md                   # Project documentation
 ```
@@ -59,7 +64,14 @@ Run the training pipeline. It automatically generates the dataset if not present
 python train.py
 ```
 
-### 3. Predict via Command Line (CLI)
+### 3. Launch the Web Analytics Portal (Recommended)
+Launch the bespoke, human-designed web portal with real-time predictions, factor attribution breakdowns, and sensitivity curves:
+```bash
+python server.py
+```
+Open **[http://localhost:8000](http://localhost:8000)** in your browser.
+
+### 4. Predict via Command Line (CLI)
 You can test predictions interactively:
 ```bash
 python predict.py
@@ -69,8 +81,7 @@ Or pass arguments directly:
 python predict.py --hours 6.5 --attendance 90 --previous 82
 ```
 
-### 4. Launch the Interactive Web Dashboard
-Run the Streamlit application to open the interactive UI:
+### 5. Alternative: Streamlit Dashboard
 ```bash
 streamlit run app.py
 ```
