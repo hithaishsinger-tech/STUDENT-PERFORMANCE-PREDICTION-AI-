@@ -1,0 +1,41 @@
+{
+    "best_model": "Ridge Regression",
+    "feature_names": [
+        "study_hours",
+        "attendance",
+        "previous_marks"
+    ],
+    "target": "final_score",
+    "metrics": {
+        "r2_score": 0.9785,
+        "mae": 1.377,
+        "rmse": 1.718,
+        "accuracy_percentage": 98.14
+    },
+    "all_model_results": {
+        "Linear Regression": {
+            "r2_score": 0.9785,
+            "mae": 1.377,
+            "rmse": 1.718,
+            "accuracy_percentage": 98.14
+        },
+        "Ridge Regression": {
+            "r2_score": 0.9785,
+            "mae": 1.377,
+            "rmse": 1.718,
+            "accuracy_percentage": 98.14
+        },
+        "Random Forest": {
+            "r2_score": 0.9654,
+            "mae": 1.74,
+            "rmse": 2.18,
+            "accuracy_percentage": 97.59
+        },
+        "Gradient Boosting": {
+            "r2_score": 0.9702,
+            "mae": 1.579,
+            "rmse": 2.024,
+            "accuracy_percentage": 97.84
+        }
+    }
+}
